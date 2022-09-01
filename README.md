@@ -37,7 +37,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/lib
     mv libf.so $out/lib
   '';
-};
+}
 ```
 
 The _SONAME_ is modified to point to the absolute path of the file.
