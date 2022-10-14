@@ -10,20 +10,12 @@ nix-harden-needed-hook() {
 
     header "Hardening the dynamic shared libraries in $dir"
 
-    local i
-    while IFS= read -r -d $'\0' i; do
-
-        # Optimization check -- just see if it's an ELF file
-        if ! isELF "$i"; then continue; fi
-
-        # Try to read the SONAME
-        @ruby@/bin/ruby @nixHardenNeededScript@ "${i}"
-
-    # The spacing in the find command is very important
-    # especially for the brackets.
-    done <  <(find $dir -type f \
-            \( -name '*.so' -o -name '*.so.*' \) -print0)
-
+    for i in $(find $dir -type f -name '*.so*'); do
+        # sometimes there can be linker scripts matching *.so*
+        if isELF "$i"; then
+            patchelf --set-soname $i $i
+        fi
+    done
 }
 
 fixupOutputHooks+=(nix-harden-needed-hook)
